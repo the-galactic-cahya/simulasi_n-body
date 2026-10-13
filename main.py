@@ -237,7 +237,7 @@ gs = gridspec.GridSpec(
     3, 2,
     figure=fig,
     left=0.06, right=0.975,
-    top=0.915, bottom=0.20,
+    top=0.875, bottom=0.33,
     wspace=0.32, hspace=0.60,
     width_ratios=[1.55, 1],
     height_ratios=[1, 1, 1],
@@ -333,20 +333,30 @@ for cfg in CONFIGS:
     )
     speed_texts.append(t)
 
-# Legend
+# Legend — pojok kanan atas dalam plot, tidak menindih judul figure
 for cfg in CONFIGS:
     ax_anim.plot([], [], color=cfg["color"], lw=1.8, label=cfg["label"])
 ax_anim.legend(
-    fontsize=8, framealpha=0.30, facecolor="#0d0d20",
-    edgecolor=C_SPINE, labelcolor="white", loc="upper right"
+    fontsize=7.5, framealpha=0.35, facecolor="#0a0a1e",
+    edgecolor=C_SPINE, labelcolor="white",
+    loc="upper right",
+    borderaxespad=0.5,
+    ncol=1,
 )
 
-# Info box fisika live (kiri bawah)
-info_box = ax_anim.text(
-    0.015, 0.015, "", transform=ax_anim.transAxes, fontsize=7.5,
-    color=C_TEXT, va="bottom", family="monospace",
-    bbox=dict(boxstyle="round,pad=0.5", facecolor="#0a0a1e",
-              edgecolor=C_SPINE, alpha=0.88)
+# Info box fisika live — ax terpisah di bawah animasi (tidak menindih orbit)
+# Posisi [left, bottom, width, height] dalam koordinat figure
+ax_info = fig.add_axes([0.06, 0.195, 0.545, 0.125])
+ax_info.set_facecolor("#0a0a1e")
+ax_info.set_xticks([]); ax_info.set_yticks([])
+for sp in ax_info.spines.values():
+    sp.set_edgecolor(C_SPINE)
+    sp.set_linewidth(0.8)
+
+info_box = ax_info.text(
+    0.01, 0.97, "", transform=ax_info.transAxes, fontsize=7.2,
+    color=C_TEXT, va="top", ha="left", family="monospace",
+    linespacing=1.55,
 )
 
 # ── Panel energi kanan ───────────────────────────────────────
@@ -426,26 +436,26 @@ state = {"skip": SKIP_INIT, "paused": False, "frame": 0}
 _BC  = "#0d0d20"
 _BCH = "#1a1a38"
 
-ax_sl = fig.add_axes([0.06, 0.115, 0.46, 0.025])
+ax_sl = fig.add_axes([0.06, 0.135, 0.46, 0.025])
 ax_sl.set_facecolor(_BC)
 slider = Slider(ax=ax_sl, label="Kecepatan", valmin=1, valmax=80,
                 valinit=SKIP_INIT, valstep=1, color="#2244aa")
 slider.label.set_color(C_TEXT); slider.label.set_fontsize(8.5)
 slider.valtext.set_color("#FFD700"); slider.valtext.set_fontsize(8.5)
 
-ax_bp = fig.add_axes([0.555, 0.095, 0.115, 0.038])
+ax_bp = fig.add_axes([0.555, 0.115, 0.115, 0.038])
 btn_pause = Button(ax_bp, "Pause", color=_BC, hovercolor=_BCH)
 btn_pause.label.set_color("#FFD700"); btn_pause.label.set_fontsize(9.5)
 
-ax_br = fig.add_axes([0.680, 0.095, 0.115, 0.038])
+ax_br = fig.add_axes([0.680, 0.115, 0.115, 0.038])
 btn_reset = Button(ax_br, "Reset", color=_BC, hovercolor=_BCH)
 btn_reset.label.set_color("#FF7043"); btn_reset.label.set_fontsize(9.5)
 
-ax_bs = fig.add_axes([0.805, 0.095, 0.155, 0.038])
+ax_bs = fig.add_axes([0.805, 0.115, 0.155, 0.038])
 btn_save = Button(ax_bs, "Simpan PNG", color=_BC, hovercolor=_BCH)
 btn_save.label.set_color("#81C784"); btn_save.label.set_fontsize(9.5)
 
-fig.text(0.06, 0.088, "step/frame", fontsize=7.5, color=C_DIM, va="center")
+fig.text(0.06, 0.108, "step/frame", fontsize=7.5, color=C_DIM, va="center")
 
 
 def on_slider(val):
@@ -563,15 +573,15 @@ def update(frame_num):
     d12 = np.linalg.norm(history[idx, 2] - history[idx, 1])
     pct = 100.0 * idx / STEPS
     info_box.set_text(
-        f"t       : {t:>9.3f} yr   ({pct:.0f}%)\n"
-        f"KE      : {KE:>+12.6f}  M\u2609 AU\u00b2 yr\u207b\u00b2\n"
-        f"PE      : {PE:>+12.6f}  M\u2609 AU\u00b2 yr\u207b\u00b2\n"
-        f"E_total : {E:>+12.6f}  M\u2609 AU\u00b2 yr\u207b\u00b2\n"
-        f"Lz      : {Lz:>+12.6f}  M\u2609 AU\u00b2 yr\u207b\u00b9\n"
-        f"|dE/E0| : {dEr:>12.3e}\n"
-        f"d(0-1)  : {d01:>9.4f}  AU\n"
-        f"d(0-2)  : {d02:>9.4f}  AU\n"
-        f"d(1-2)  : {d12:>9.4f}  AU"
+        f"t       : {t:.3f} yr ({pct:.0f}%)       "
+        f"|dE/E0| : {dEr:.3e}\n"
+        f"KE      : {KE:+.6f}  M\u2609 AU\u00b2 yr\u207b\u00b2   "
+        f"d(0-1)  : {d01:.4f} AU\n"
+        f"PE      : {PE:+.6f}  M\u2609 AU\u00b2 yr\u207b\u00b2   "
+        f"d(0-2)  : {d02:.4f} AU\n"
+        f"E_total : {E:+.6f}  M\u2609 AU\u00b2 yr\u207b\u00b2   "
+        f"d(1-2)  : {d12:.4f} AU\n"
+        f"Lz      : {Lz:+.6f}  M\u2609 AU\u00b2 yr\u207b\u00b9"
     )
 
     # Panel energi live
