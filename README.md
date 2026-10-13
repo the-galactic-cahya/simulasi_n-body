@@ -24,7 +24,4 @@ Jalankan simulasi:
 python main.py
 ```
 
-## Pengembangan Selanjutnya
-- Membandingkan metode integrasi numerik.
-- Mengembangkan konfigurasi sistem tiga benda.
 
