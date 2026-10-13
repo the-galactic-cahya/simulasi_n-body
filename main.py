@@ -333,14 +333,15 @@ for cfg in CONFIGS:
     )
     speed_texts.append(t)
 
-# Legend — pojok kanan atas dalam plot, tidak menindih judul figure
+# Legend — di dalam plot pojok kiri atas, area yang tidak dilalui orbit
 for cfg in CONFIGS:
     ax_anim.plot([], [], color=cfg["color"], lw=1.8, label=cfg["label"])
 ax_anim.legend(
     fontsize=7.5, framealpha=0.35, facecolor="#0a0a1e",
     edgecolor=C_SPINE, labelcolor="white",
-    loc="upper right",
-    borderaxespad=0.5,
+    loc="lower left",
+    bbox_to_anchor=(0.0, 1.01),   # tepat di atas sumbu, rata kiri
+    borderaxespad=0,
     ncol=1,
 )
 
